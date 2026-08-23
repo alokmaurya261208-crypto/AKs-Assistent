@@ -1,4 +1,4 @@
-name: Build APK
+name: Build AKs Assistant APK
 on:
   workflow_dispatch:
 jobs:
@@ -7,26 +7,40 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Extract Android project
+
+      - name: Find and extract Groq project
         run: |
-          unzip -o Aks_Assistant_Android_Project-1.zip -d android_project
-          PROJECT_DIR=$(find android_project -type f \( -name "settings.gradle" -o -name "settings.gradle.kts" \) -exec dirname {} \; | head -n 1)
-          echo "PROJECT_DIR=$PROJECT_DIR" >> $GITHUB_ENV
+          ZIP=$(find . -maxdepth 1 -type f -name 'AKs_Assistant_Groq_Free_Fixed_v2.zip' | head -n 1)
+
+          if [ -z "$ZIP" ]; then
+            echo "Groq project ZIP not found"
+            exit 1
+          fi
+          mkdir -p project
+          unzip -q "$ZIP" -d project
+
+          PROJECT_DIR=$(find project -type f \( -name settings.gradle -o -name settings.gradle.kts \) -print -quit | xargs -r dirname)
+
+          if [ -z "$PROJECT_DIR" ]; then
+            echo "Android project not found"
+            find project -maxdepth 4 -type f | head -100
+            exit 1
+          fi
+          echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
+          echo "Project found at: $PROJECT_DIR"
       - name: Set up JDK
         uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
-      - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: '8.7'
       - name: Build APK
         run: |
           cd "$PROJECT_DIR"
-          gradle assembleDebug
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: AKs-Assistant-APK
-          path: '**/app/build/outputs/apk/debug/*.apk'
+          path: '$  {{ env.PROJECT_DIR }}/app/build/outputs/apk/debug/*.apk'
