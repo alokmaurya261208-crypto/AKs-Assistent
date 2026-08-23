@@ -1,32 +1,30 @@
 name: Build APK
-
 on:
   workflow_dispatch:
-
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Find Android project
+      - name: Extract Android project
         run: |
-          unzip -o "$(find . -maxdepth 1 -name '*.zip' -print -quit)"
-  
+          unzip -o Aks_Assistant_Android_Project-1.zip -d android_project
+          PROJECT_DIR=$(find android_project -type f \( -name "settings.gradle" -o -name "settings.gradle.kts" \) -exec dirname {} \; | head -n 1)
+          echo "PROJECT_DIR=$PROJECT_DIR" >> $GITHUB_ENV
       - name: Set up JDK
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
-
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.7'
       - name: Build APK
         run: |
           cd "$PROJECT_DIR"
-          chmod +x gradlew
-          ./gradlew assembleDebug
-
+          gradle assembleDebug
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
