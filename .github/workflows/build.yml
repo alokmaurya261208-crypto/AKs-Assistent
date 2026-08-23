@@ -33,10 +33,10 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
-       -name: Build APK
-  run: |
-    cd "$PROJECT_DIR"
-    gradle assembleDebug
+          -name: Build APK
+          run: |
+              cd "$PROJECT_DIR"
+               gradle assembleDebug
 
 
       - name: Upload APK
