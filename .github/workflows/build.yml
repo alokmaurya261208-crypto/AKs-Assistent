@@ -1,4 +1,4 @@
-seename: Build AKs Assistant APK
+name: Build AKs Assistant APK
 on:
   workflow_dispatch:
 jobs:
@@ -33,7 +33,7 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
-      -- name: Build APK
+       -name: Build APK
   run: |
     cd "$PROJECT_DIR"
     gradle assembleDebug
