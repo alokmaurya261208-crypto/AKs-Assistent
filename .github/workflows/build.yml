@@ -13,10 +13,8 @@ jobs:
 
       - name: Find Android project
         run: |
-          unzip -o Aks_Assistant_Android_Project-1.zip
-          PROJECT_DIR=$(find . -name gradlew -type f -print -quit | xargs dirname)
-          echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
-
+          unzip -o "$(find . -maxdepth 1 -name '*.zip' -print -quit)"
+  
       - name: Set up JDK
         uses: actions/setup-java@v4
         with:
